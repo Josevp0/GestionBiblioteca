@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Libros - Sistema de Gestión de Bibliotecas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+        
+        .navbar {
+            background-color: var(--primary-color) !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+        }
+        
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .search-container {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 40px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-title {
+            position: relative;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+        }
+        
+        .section-title:after {
+            content: "";
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: var(--secondary-color);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+        
+        .book-card {
+            transition: all 0.3s ease;
+            height: 100%;
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .book-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .book-cover {
+            height: 280px;
+            object-fit: contain;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .availability-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        
+        .category-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: var(--secondary-color);
+        }
+        
+        .book-card-body {
+            position: relative;
+            padding: 25px;
+            padding-top: 20px;
+        }
+        
+        .book-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .book-author {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.75rem;
+        }
+        
+        .book-description {
+            font-size: 0.85rem;
+            color: #6c757d;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 1.25rem;
+        }
+        
+        .book-meta {
+            font-size: 0.8rem;
+            color: #6c757d;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .btn-details {
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-details:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 60px 0 20px;
+            margin-top: 80px;
+        }
+        
+        footer h5 {
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        footer h5:after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 2px;
+            background: var(--secondary-color);
+        }
+        
+        footer a {
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        footer a:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            margin-top: 40px;
+        }
+        
+        .no-results {
+            padding: 40px;
+            text-align: center;
+            border-radius: 12px;
+            background-color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .no-results-icon {
+            font-size: 3rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .book-cover {
+                height: 200px;
+            }
+            
+            .search-container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/guest">
+                <i class="bi bi-book me-2"></i>Biblioteca Digital
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/guest">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/guest/catalog">Catálogo</a>
+                    </li>
+                  
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="btn btn-outline-light" href="/login">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Iniciar sesión
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="search-container">
+            <div class="row align-items-center">
+                <div class="col-md-8 mb-3 mb-md-0">
+                    <form action="/guest/search" method="get" class="d-flex">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="bi bi-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0" name="query" 
+                                   placeholder="Buscar por título, autor o ISBN..." th:value="${searchQuery}">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-search me-1"></i> Buscar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-tag-fill text-muted"></i>
+                        </span>
+                        <select class="form-select" id="categoryFilter" 
+                                onchange="window.location.href='/guest/catalog?category='+this.value">
+                            <option value="">Todas las Categorías</option>
+                            <option th:each="cat : ${categories}" 
+                                    th:value="${cat}" 
+                                    th:text="${cat}"
+                                    th:selected="${category == cat}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h1 class="section-title">
+            <i class="bi bi-book me-2"></i>Catálogo de Libros
+            <small class="text-muted fs-5" th:if="${category}">(Categoría: [[${category}]])</small>
+        </h1>
+        
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+            <div class="col" th:each="book : ${books}">
+                <div class="card book-card h-100">
+                    <div class="position-relative">
+                        <!-- Mostrar imagen desde GridFS si existe -->
+                        <img th:if="${book.imageFileId != null}" 
+                             th:src="@{/guest/books/image/{id}(id=${book.id})}" 
+                             class="card-img-top book-cover" 
+                             alt="Portada del libro">
+                        <img th:unless="${book.imageFileId != null}" 
+                             src="https://via.placeholder.com/300x450?text=Sin+Portada" 
+                             class="card-img-top book-cover" 
+                             alt="Sin portada">
+                        <span class="badge category-badge" th:text="${book.category}">Categoría</span>
+                        <span th:if="${book.availableCopies > 0}" 
+                              class="badge availability-badge bg-success">
+                            <i class="bi bi-check-circle me-1"></i>Disponible
+                        </span>
+                        <span th:unless="${book.availableCopies > 0}" 
+                              class="badge availability-badge bg-secondary">
+                            <i class="bi bi-x-circle me-1"></i>No Disponible
+                        </span>
+                    </div>
+                    <div class="card-body book-card-body">
+                        <h5 class="book-title" th:text="${book.title}">Título del libro</h5>
+                        <h6 class="book-author" th:text="${'por ' + book.author}">por Nombre del autor</h6>
+                        <p class="book-description" th:text="${book.description}">Descripción del libro...</p>
+                        <div class="book-meta">
+                            <span th:text="${book.publicationYear}">2023</span>
+                            <span th:text="${book.isbn}">ISBN: 978-3-16-148410-0</span>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-top-0 pt-0 pb-3">
+                        <div class="d-grid">
+                            <a th:href="@{/guest/book/{id}(id=${book.id})}" 
+                               class="btn btn-outline-primary btn-details">
+                                <i class="bi bi-eye me-1"></i>Ver detalles
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12" th:if="${books.empty}">
+                <div class="no-results">
+                    <div class="no-results-icon">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <h4>No se encontraron libros</h4>
+                    <p class="text-muted mb-4" th:if="${searchQuery}">
+                        No hay resultados para tu búsqueda: "<span th:text="${searchQuery}"></span>"
+                    </p>
+                    <p class="text-muted mb-4" th:unless="${searchQuery}">
+                        No hay libros disponibles en esta categoría.
+                    </p>
+                    <a href="/guest/catalog" class="btn btn-primary">
+                        <i class="bi bi-arrow-left me-1"></i>Volver al catálogo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h5><i class="bi bi-book me-2"></i> Biblioteca Digital</h5>
+                    <p class="text-muted">Promoviendo el acceso al conocimiento y la cultura desde 1995. Nuestra misión es conectar a las personas con la información que necesitan.</p>
+                    <div class="mt-4">
+                        <a href="#" class="text-muted me-3"><i class="bi bi-facebook fs-5"></i></a>
+                        <a href="#" class="text-muted me-3"><i class="bi bi-twitter fs-5"></i></a>
+                        <a href="#" class="text-muted me-3"><i class="bi bi-instagram fs-5"></i></a>
+                        <a href="#" class="text-muted"><i class="bi bi-linkedin fs-5"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Enlaces</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/guest">Inicio</a></li>
+                        <li class="mb-2"><a href="/guest/catalog">Catálogo</a></li>
+                        <li class="mb-2"><a href="#">Servicios</a></li>
+                        <li class="mb-2"><a href="#">Eventos</a></li>
+                        <li class="mb-2"><a href="#">Sobre Nosotros</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h5>Horario</h5>
+                    <ul class="list-unstyled text-muted">
+                        <li class="mb-2">Lunes-Viernes: 9am - 8pm</li>
+                        <li class="mb-2">Sábado: 10am - 6pm</li>
+                        <li class="mb-2">Domingo: 12pm - 5pm</li>
+                        <li class="mb-2">Festivos: Cerrado</li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h5>Contacto</h5>
+                    <address class="text-muted">
+                        <i class="bi bi-geo-alt me-2"></i> Av. del Conocimiento 456<br>
+                        <span class="ms-4">Ciudad del Saber, CP 28015</span><br>
+                        <i class="bi bi-envelope me-2"></i> contacto@bibliotecadigital.com<br>
+                        <i class="bi bi-telephone me-2"></i> +34 912 345 678
+                    </address>
+                </div>
+            </div>
+            <div class="footer-bottom text-center">
+                <p class="text-muted mb-0">&copy; 2023 Biblioteca Digital. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Establecer la categoría seleccionada en el filtro
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('category');
+            if (category) {
+                document.getElementById('categoryFilter').value = category;
+            }
+        });
+    </script>
+</body>
+</html>

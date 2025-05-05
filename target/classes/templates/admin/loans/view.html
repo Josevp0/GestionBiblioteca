@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles del Préstamo - Sistema de Gestión Bibliotecaria</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .sidebar {
+            min-height: calc(100vh - 56px);
+        }
+        .detail-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .detail-header {
+            background-color: #f8f9fa;
+            border-radius: 10px 10px 0 0;
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .loan-status-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .loan-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        .loan-timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #dee2e6;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #0d6efd;
+        }
+        .timeline-item.completed::before {
+            background-color: #198754;
+        }
+        .timeline-item.overdue::before {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/admin">Sistema de Gestión Bibliotecaria</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin">Panel de Control</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">Usuarios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/books">Libros</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/loans">Préstamos</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Cerrar sesión</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar p-3">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin">
+                                <i class="bi bi-speedometer2 me-2"></i> Panel de Control
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/users">
+                                <i class="bi bi-people me-2"></i> Usuarios
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/books">
+                                <i class="bi bi-book me-2"></i> Libros
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/admin/loans">
+                                <i class="bi bi-arrow-left-right me-2"></i> Préstamos
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Detalles del Préstamo</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <a href="/admin/loans" class="btn btn-sm btn-outline-secondary me-2">
+                            <i class="bi bi-arrow-left me-1"></i> Volver a Préstamos
+                        </a>
+                        <a th:if="${loan.status.name() == 'ACTIVE'}" 
+                           th:href="@{/admin/loans/return/{id}(id=${loan.id})}" 
+                           class="btn btn-sm btn-success me-2">
+                            <i class="bi bi-check-lg me-1"></i> Devolver Libro
+                        </a>
+                        <a th:href="@{/admin/loans/edit/{id}(id=${loan.id})}" class="btn btn-sm btn-primary me-2">
+                            <i class="bi bi-pencil me-1"></i> Editar
+                        </a>
+                        <a th:href="@{/admin/loans/delete/{id}(id=${loan.id})}" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash me-1"></i> Eliminar
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card detail-card">
+                    <div class="detail-header text-center">
+                        <div class="loan-status-icon">
+                            <i th:if="${loan.status.name() == 'ACTIVE'}" class="bi bi-hourglass-split text-primary"></i>
+                            <i th:if="${loan.status.name() == 'RETURNED'}" class="bi bi-check-circle-fill text-success"></i>
+                            <i th:if="${loan.status.name() == 'OVERDUE'}" class="bi bi-exclamation-triangle-fill text-danger"></i>
+                            <i th:if="${loan.status.name() == 'LOST'}" class="bi bi-x-circle-fill text-dark"></i>
+                        </div>
+                        <h3>
+                            <span th:if="${loan.status.name() == 'ACTIVE'}" class="badge bg-primary">Activo</span>
+                            <span th:if="${loan.status.name() == 'RETURNED'}" class="badge bg-success">Devuelto</span>
+                            <span th:if="${loan.status.name() == 'OVERDUE'}" class="badge bg-danger">Vencido</span>
+                            <span th:if="${loan.status.name() == 'LOST'}" class="badge bg-dark">Perdido</span>
+                        </h3>
+                        <p class="text-muted" th:text="${'ID de Préstamo: ' + loan.id}">ID de Préstamo: 12345</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <h5>Información del Libro</h5>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title" th:text="${book != null ? book.title : 'Libro Desconocido'}">Título del Libro</h5>
+                                        <h6 class="card-subtitle mb-2 text-muted" th:text="${book != null ? 'por ' + book.author : ''}">por Nombre del Autor</h6>
+                                        <p class="card-text">
+                                            <strong>ISBN:</strong> <span th:text="${book != null ? book.isbn : 'N/A'}">978-3-16-148410-0</span><br>
+                                            <strong>Categoría:</strong> <span th:text="${book != null ? book.category : 'N/A'}">Ficción</span>
+                                        </p>
+                                        <a th:if="${book != null}" th:href="@{/admin/books/view/{id}(id=${book.id})}" class="btn btn-sm btn-outline-primary">Ver Detalles del Libro</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <h5>Información del Usuario</h5>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title" th:text="${user != null ? user.fullName : 'Usuario Desconocido'}">John Doe</h5>
+                                        <h6 class="card-subtitle mb-2 text-muted" th:text="${user != null ? user.username : ''}">johndoe</h6>
+                                        <p class="card-text">
+                                            <strong>Correo Electrónico:</strong> <span th:text="${user != null ? user.email : 'N/A'}">john@example.com</span><br>
+                                            <strong>Rol:</strong> <span th:text="${user != null ? user.role : 'N/A'}">ESTUDIANTE</span>
+                                        </p>
+                                        <a th:if="${user != null}" th:href="@{/admin/users/view/{id}(id=${user.id})}" class="btn btn-sm btn-outline-primary">Ver Detalles del Usuario</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-4">
+                                <h5>Cronología del Préstamo</h5>
+                                <div class="loan-timeline mt-4">
+                                    <div class="timeline-item completed">
+                                        <h6>Préstamo Creado</h6>
+                                        <p class="text-muted" th:text="${#dates.format(loan.loanDate, 'yyyy-MM-dd')}">2023-01-01</p>
+                                    </div>
+                                    <div class="timeline-item" th:classappend="${loan.status.name() == 'OVERDUE' ? 'overdue' : ''}">
+                                        <h6>Fecha de Vencimiento</h6>
+                                        <p class="text-muted" th:text="${#dates.format(loan.dueDate, 'yyyy-MM-dd')}">2023-01-15</p>
+                                    </div>
+                                    <div class="timeline-item" th:if="${loan.returnDate != null}" th:classappend="completed">
+                                        <h6>Fecha de Devolución</h6>
+                                        <p class="text-muted" th:text="${#dates.format(loan.returnDate, 'yyyy-MM-dd')}">2023-01-10</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" th:if="${loan.notes != null && !loan.notes.isEmpty()}">
+                            <div class="col-md-12 mb-4">
+                                <h5>Notas</h5>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <p class="card-text" th:text="${loan.notes}">Notas sobre este préstamo...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

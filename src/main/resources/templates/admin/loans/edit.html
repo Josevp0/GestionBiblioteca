@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Préstamo - Sistema de Gestión Bibliotecaria</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .sidebar {
+            min-height: calc(100vh - 56px);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/admin">Sistema de Gestión Bibliotecaria</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin">Panel de Control</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">Usuarios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/books">Libros</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/loans">Préstamos</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Cerrar sesión</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar p-3">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin">
+                                <i class="bi bi-speedometer2 me-2"></i> Panel de Control
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/users">
+                                <i class="bi bi-people me-2"></i> Usuarios
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/books">
+                                <i class="bi bi-book me-2"></i> Libros
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/admin/loans">
+                                <i class="bi bi-arrow-left-right me-2"></i> Préstamos
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Editar Préstamo</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <a href="/admin/loans" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Volver a Préstamos
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <form th:action="@{/admin/loans/update}" th:object="${loan}" method="post">
+                            <input type="hidden" th:field="*{id}" />
+                            <input type="hidden" th:field="*{userId}" />
+                            <input type="hidden" th:field="*{bookId}" />
+                            <input type="hidden" th:field="*{loanDate}" />
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Usuario</label>
+                                    <input type="text" class="form-control" th:value="${userName}" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Libro</label>
+                                    <input type="text" class="form-control" th:value="${bookTitle}" readonly>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Fecha de Préstamo</label>
+                                    <input type="text" class="form-control" th:value="${#dates.format(loan.loanDate, 'yyyy-MM-dd')}" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="dueDate" class="form-label">Fecha de Devolución Prevista</label>
+                                    <input type="date" class="form-control" id="dueDate" th:field="*{dueDate}" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="status" class="form-label">Estado</label>
+                                    <select class="form-select" id="status" th:field="*{status}" required>
+                                        <option value="ACTIVE">Activo</option>
+                                        <option value="RETURNED">Devuelto</option>
+                                        <option value="OVERDUE">Vencido</option>
+                                        <option value="LOST">Perdido</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="returnDate" class="form-label">Fecha de Devolución Real</label>
+                                    <input type="date" class="form-control" id="returnDate" th:field="*{returnDate}">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Notas</label>
+                                <textarea class="form-control" id="notes" th:field="*{notes}" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="/admin/loans" class="btn btn-secondary me-md-2">Cancelar</a>
+                                <button type="submit" class="btn btn-primary">Actualizar Préstamo</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
